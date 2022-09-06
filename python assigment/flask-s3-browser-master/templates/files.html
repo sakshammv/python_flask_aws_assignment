@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+{% block title %}S3 Object List{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <div class="col-12-xs">
+      <h3>Bucket Info</h3>
+      <p>Created: {{ my_bucket.creation_date | datetimeformat }}</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <p class="bg-info" style="padding: 15px;">
+          {% for message in messages %}
+            {{ message }}<br>
+          {% endfor %}
+          </p>
+        {% endif %}
+      {% endwith %}
+      <hr>
+
+      <form class="move-form" action="{{ url_for('copy') }}" method="POST">
+        <label >Current Bucket</label>
+        <select name="cbucket">
+          <option value="default">--Please choose an option--</option>
+          {% for bucket in buckets %}
+          <option value="{{ bucket['Name'] }}">{{ bucket['Name'] }}</option>
+          {% endfor %}
+      </select>
+      
+        <label >File</label>
+        <input type="text" name="cfile" value="">
+
+        <label >Target Bucket</label>
+        <select name="tbucket">
+          <option value="default">--Please choose an option--</option>
+          {% for bucket in buckets %}
+          <option value="{{ bucket['Name'] }}">{{ bucket['Name'] }}</option>
+          {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-default btn-sm">
+        <i class="fa fa-download">
+          Copy
+        </i>
+      </button>
+
+      <form class="upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+        <p><input type="file" name="file"></p>
+        <button type="submit" class="btn btn-primary">Upload</button>
+      </form>
+      <hr>
+
+      <table class="table table-striped">
+        <tr>
+          <th>Filename</th>
+          <th>Last Modified</th>
+          <th>Type</th>
+          <th></th>
+        </tr>
+        {% for f in files %}
+        <tr>
+          <td>{{ f.key }}</td>
+          <td>{{ f.last_modified | datetimeformat }}</td>
+          <td>{{ f.key | file_type }}</td>
+          <td class="td-buttons">
+            <form class="delete-form" action="{{ url_for('delete') }}" method="POST">
+              <input type="hidden" name="key" value="{{ f.key }}">
+              <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fa fa-trash-alt"></i>
+              </button>
+            </form>
+            <form class="download-form" action="{{ url_for('download') }}" method="POST">
+              <input type="hidden" name="key" value="{{ f.key }}">
+              <button type="submit" class="btn btn-default btn-sm">
+                <i class="fa fa-download"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+{% endblock %}
